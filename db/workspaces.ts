@@ -24,7 +24,7 @@ export const getWorkspaceById = async (workspaceId: string) => {
     .single()
 
   if (!workspace) {
-    throw new Error(error.message)
+    throw new Error("Workspace not found or not authorized")
   }
 
   return workspace

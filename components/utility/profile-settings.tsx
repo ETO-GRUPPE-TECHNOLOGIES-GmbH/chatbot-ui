@@ -22,7 +22,7 @@ import {
   IconUser
 } from "@tabler/icons-react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { FC, useCallback, useContext, useRef, useState } from "react"
 import { toast } from "sonner"
 import { SIDEBAR_ICON_SIZE } from "../sidebar/sidebar-switcher"
@@ -119,9 +119,9 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
   )
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push("/login")
-    router.refresh()
+    console.log("handleSignOut")
+
+    router.push("/auth/logout")
     return
   }
 

@@ -8,17 +8,19 @@ export async function middleware(request: NextRequest) {
   if (i18nResult) return i18nResult
 
   try {
-    const { supabase, response } = createClient(request)
+    const { supabase, supabaseResponse: response } = createClient(request)
+    const userId = (await supabase.auth.getUser()).data.user?.id
+    console.log("userid"+userId);
 
-    const session = await supabase.auth.getSession()
-
-    const redirectToChat = session && request.nextUrl.pathname === "/"
-
-    if (redirectToChat) {
+    
+    
+    if (userId && request.nextUrl.pathname === "/") {
+      console.log("redirecting to home workspace");
+      
       const { data: homeWorkspace, error } = await supabase
         .from("workspaces")
         .select("*")
-        .eq("user_id", session.data.session?.user.id)
+        .eq("user_id", userId)
         .eq("is_home", true)
         .single()
 
