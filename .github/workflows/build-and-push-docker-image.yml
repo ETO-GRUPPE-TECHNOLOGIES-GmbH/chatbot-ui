@@ -21,8 +21,16 @@ jobs:
             context: .
             push: false
             tags: chatbot/ui:latest 
+      - name: Check Secret Lengths
+        env:
+          JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+          JFROG_USER: ${{ secrets.JFROG_USER }}
+        run: |
+           echo "JFROG_TOKEN length: ${#JFROG_TOKEN}"
+           echo "JFROG_USER length: ${#JFROG_USER}"
+                
       - name: Docker login to registry
-        run: echo ${{ secrets.JFROG_TOKEN }} | docker login repo.farmunited.com:443 -u ${{ secrets.JFROG_USER }} --password-stdin
+        run: echo ${JFROG_TOKEN} | docker login repo.farmunited.com:443 -u ${JFROG_USER} --password-stdin
       - name: push to jfrog
         run: docker tag chatbut/ui:latest repo.farmunited.com:443/egdbz-docker/chatbot/ui:latest
       - name: Push Docker image
