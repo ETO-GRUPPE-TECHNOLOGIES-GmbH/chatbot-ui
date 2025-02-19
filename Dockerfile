@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build
 
 # Set the environment to production to reduce Next.js application size
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Expose the port the app runs on
 EXPOSE 3000

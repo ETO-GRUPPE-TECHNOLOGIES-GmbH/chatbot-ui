@@ -1,0 +1,34 @@
+name: Build and Push Docker Image to JFrog
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  # This is required for actions/checkout
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+            context: .
+            push: false
+            tags: chatbot/ui:latest 
+      - name: Docker login to registry
+        run: echo ${{ secrets.JFROG_TOKEN }} | docker login repo.farmunited.com:443 -u ${{ secrets.JFROG_USER }} --password-stdin
+      - name: push to jfrog
+        run: docker tag chatbut/ui:latest repo.farmunited.com:443/egdbz-docker/chatbot/ui:latest
+      - name: Push Docker image
+        run: docker push repo.farmunited.com:443/egdbz-docker/chatbot/ui:latest
+
+    
+
+    
+         
