@@ -10,9 +10,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-        JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-        JFROG_USER: ${{ secrets.JFROG_USER }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -23,9 +20,12 @@ jobs:
             push: false
             tags: chatbot/ui:latest
       - name: Docker login to registry
+        env:
+            JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+            JFROG_USER: ${{ secrets.JFROG_USER }}    
         run: echo ${JFROG_TOKEN} | docker login repo.farmunited.com:443 -u ${JFROG_USER} --password-stdin
       - name: push to jfrog
-        run: docker tag chatbut/ui:latest repo.farmunited.com:443/egdbz-docker/chatbot/ui:latest
+        run: docker tag chatbot/ui:latest repo.farmunited.com:443/egdbz-docker/chatbot/ui:latest
       - name: Push Docker image
         run: docker push repo.farmunited.com:443/egdbz-docker/chatbot/ui:latest
 
