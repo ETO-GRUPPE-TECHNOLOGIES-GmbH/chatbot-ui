@@ -154,18 +154,19 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
 
   const fetchStartingData = async () => {
     const session = (await supabase.auth.getSession()).data.session
+    const userId = (await supabase.auth.getUser()).data.user?.id
 
-    if (session) {
-      const user = session.user
+    if (userId) {
+      const user = userId
 
-      const profile = await getProfileByUserId(user.id)
+      const profile = await getProfileByUserId(userId)
       setProfile(profile)
 
       if (!profile.has_onboarded) {
         return router.push("/setup")
       }
 
-      const workspaces = await getWorkspacesByUserId(user.id)
+      const workspaces = await getWorkspacesByUserId(userId)
       setWorkspaces(workspaces)
 
       for (const workspace of workspaces) {
