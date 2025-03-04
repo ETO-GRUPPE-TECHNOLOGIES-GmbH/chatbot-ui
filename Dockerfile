@@ -34,7 +34,7 @@ COPY --from=base /usr/src/app/public ./public
 # Setze die Umgebungsvariablen für die Produktion
 ENV NODE_ENV=production
 ENV HOSTNAME "0.0.0.0"
-ENV PORT=80
+ENV PORT=3000
 
 # Exponiere den Port 3000
 EXPOSE 3000
