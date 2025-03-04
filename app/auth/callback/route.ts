@@ -35,5 +35,5 @@ export async function GET(request: Request) {
   console.log("code not found")
 
   // return the user to an error page with instructions
-  return NextResponse.redirect(`$https://${forwardedHost}/auth/auth-code-error`)
+  return NextResponse.redirect(`https://${forwardedHost}/auth/auth-code-error`)
 }
