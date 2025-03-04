@@ -10,6 +10,8 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/"
   console.log("url", request.url)
   console.log("origin", origin)
+  const x_forward_header = request.headers.get("x-forwarded-host")
+  console.log("x_forward_header", x_forward_header)
 
   if (code) {
     console.log("code found", code)
