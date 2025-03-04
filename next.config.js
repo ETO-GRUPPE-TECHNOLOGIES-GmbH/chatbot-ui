@@ -27,6 +27,9 @@ module.exports = withBundleAnalyzer(
     },
     experimental: {
       serverComponentsExternalPackages: ["sharp", "onnxruntime-node"]
+    },
+    env: {
+      NEXT_PUBLIC_BASE_URL: 'https://gpt-development.etospheres.com',
     }
   })
 )
