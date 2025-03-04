@@ -10,8 +10,8 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/"
   console.log("url", request.url)
   console.log("origin", origin)
-  const x_forward_header = request.headers.get("x-forwarded-host")
-  console.log("x_forward_header", x_forward_header)
+  const forwardedHost = request.headers.get("x-forwarded-host") // original origin before load balancer
+  console.log("x_forward_header", forwardedHost)
 
   if (code) {
     console.log("code found", code)
@@ -23,10 +23,9 @@ export async function GET(request: Request) {
     if (!error) {
       console.log("no error")
 
-      const forwardedHost = request.headers.get("x-forwarded-host") // original origin before load balancer
       console.log("forwardedHost", forwardedHost)
       if (forwardedHost) {
-        return NextResponse.redirect(`http://${forwardedHost}${next}`)
+        return NextResponse.redirect(`https://${forwardedHost}${next}`)
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
@@ -36,5 +35,5 @@ export async function GET(request: Request) {
   console.log("code not found")
 
   // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  return NextResponse.redirect(`$https://${forwardedHost}/auth/auth-code-error`)
 }
