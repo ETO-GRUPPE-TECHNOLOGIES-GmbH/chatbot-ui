@@ -21,6 +21,7 @@ export async function GET(request: Request) {
       console.log("no error")
 
       const forwardedHost = request.headers.get("x-forwarded-host") // original origin before load balancer
+      console.log("forwardedHost", forwardedHost)
       if (forwardedHost) {
         return NextResponse.redirect(`http://${forwardedHost}${next}`)
       } else {

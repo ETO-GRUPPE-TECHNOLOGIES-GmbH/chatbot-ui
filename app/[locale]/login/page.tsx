@@ -15,12 +15,16 @@ async function signInWithKeycloak() {
   console.log("start keycloak login")
 
   const supabase = await createClient()
+  const xhost = headers().get("x-forwarded-host")
+  console.log("xhost", xhost)
+  const origon = headers().get("origin")
+  console.log("origin", origon)
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "keycloak",
     options: {
       scopes: "openid",
-      redirectTo: `${headers().get("origin")}/auth/callback?next=/login`
+      redirectTo: `https://gpt-development.etospheres.com/auth/callback?next=/login`
     }
   })
 
