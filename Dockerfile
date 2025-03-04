@@ -1,6 +1,6 @@
 # Use the Node.js official image as a parent image
 # FROM node:20
-FROM node:20.0.0
+FROM node:20.0.0 AS base
 
 
 # Set the working directory in the container
@@ -20,11 +20,23 @@ COPY . .
 # Build the Next.js application
 RUN npm run build
 
-# Set the environment to production to reduce Next.js application size
-ENV NODE_ENV=production
+# Produktions-Image
+FROM node:20.0.0 AS production
 
-# Expose the port the app runs on
+# Setze das Arbeitsverzeichnis für das Produktions-Image
+WORKDIR /usr/src/app
+
+# Kopiere die Standalone-Build-Dateien aus dem vorherigen Build-Schritt
+COPY --from=base /usr/src/app/.next/standalone ./
+COPY --from=base /usr/src/app/.next/static ./.next/static
+COPY --from=base /usr/src/app/public ./public
+
+# Setze die Umgebungsvariablen für die Produktion
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Exponiere den Port 3000
 EXPOSE 3000
 
-# Command to run the app
-CMD ["npm", "run", "start"]
+# Starte die Anwendung mit dem Standalone-Server
+CMD ["node", "server.js"]
