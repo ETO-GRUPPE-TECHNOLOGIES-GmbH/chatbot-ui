@@ -75,7 +75,7 @@ export default async function Login({
           formAction={signInWithKeycloak}
           className="mb-2 rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
         >
-          Login with Keycloak
+          Login with ETOGRUPPE
         </SubmitButton>
         {searchParams?.message && (
           <p className="bg-foreground/10 text-foreground mt-4 p-4 text-center">

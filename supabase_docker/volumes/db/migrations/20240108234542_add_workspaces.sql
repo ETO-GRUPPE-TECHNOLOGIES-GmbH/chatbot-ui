@@ -89,3 +89,35 @@ EXECUTE PROCEDURE prevent_home_field_update();
 CREATE UNIQUE INDEX idx_unique_home_workspace_per_user 
 ON workspaces(user_id) 
 WHERE is_home;
+
+CREATE OR REPLACE FUNCTION set_default_model_and_create_model_workspace()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- set default model
+    NEW.default_model := 'stelterlab/Mistral-Small-24B-Instruct-2501-AWQ';
+
+    -- add model workspace
+    INSERT INTO model_workspaces (user_id, model_id, workspace_id)
+    VALUES (
+        NEW.user_id,
+        'f0d3a6bb-399a-49b2-90b2-bb73b4f65e30', -- Model-ID
+        NEW.id -- if of the created workspace
+    );
+
+    INSERT INTO model_workspaces (user_id, model_id, workspace_id)
+    VALUES (
+        NEW.user_id,
+        '0c713fc2-1ad4-4e92-b6c6-e73472f9e387', -- Model-ID
+        NEW.id -- if of the created workspace
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- TRIGGER FÜR DIE TABELLE WORKSPACES --
+
+CREATE TRIGGER set_default_model_and_create_model_workspace_trigger
+AFTER INSERT ON workspaces
+FOR EACH ROW
+EXECUTE FUNCTION set_default_model_and_create_model_workspace();
