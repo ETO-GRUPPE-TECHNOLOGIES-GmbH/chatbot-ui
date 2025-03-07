@@ -24,7 +24,7 @@ async function signInWithKeycloak() {
     provider: "keycloak",
     options: {
       scopes: "openid",
-      redirectTo: `http://${xhost}/auth/callback?next=/login`
+      redirectTo: `https://${xhost}/auth/callback?next=/login`
     }
   })
 
