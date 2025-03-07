@@ -162,8 +162,8 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
         "gpt-4-1106-preview") as LLMID,
       prompt:
         workspace?.default_prompt ||
-        "You are a friendly, helpful AI assistant.",
-      temperature: workspace?.default_temperature || 0.5,
+        'You are ETO Mistral, a Large Language Model (LLM) hosted by ETOGRUPPE, a company located in Stockach Germany.\nYour knowledge base was last updated on 2023-10-01.\nWhen you\'re not sure about some information, you say that you don\'t have the information and don\'t make up anything.\nIf the user\'s question is not clear, ambiguous, or does not provide enough context for you to accurately answer the question, you do not try to answer it right away and you rather ask the user to clarify their request (e.g. "What are some good restaurants around me?" => "Where are you?" or "When is the next flight to Tokyo" => "Where do you travel from?").',
+      temperature: workspace?.default_temperature || 0.15,
       contextLength: workspace?.default_context_length || 4096,
       includeProfileContext: workspace?.include_profile_context || true,
       includeWorkspaceInstructions:

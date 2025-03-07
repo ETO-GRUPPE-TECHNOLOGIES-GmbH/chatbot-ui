@@ -31,6 +31,7 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
   })
 
   const [isTyping, setIsTyping] = useState<boolean>(false)
+  const [useOnlineSearch, setUseOnlineSearch] = useState<boolean>(false)
 
   const {
     isAssistantPickerOpen,
@@ -85,7 +86,7 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
     if (!isTyping && event.key === "Enter" && !event.shiftKey) {
       event.preventDefault()
       setIsPromptPickerOpen(false)
-      handleSendMessage(userInput, chatMessages, false)
+      handleSendMessage(userInput, chatMessages, false, useOnlineSearch)
     }
 
     // Consolidate conditions to avoid TypeScript error
@@ -217,11 +218,16 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
         </div>
 
         <>
-          <IconCirclePlus
-            className="absolute bottom-[12px] left-3 cursor-pointer p-1 hover:opacity-50"
-            size={32}
-            onClick={() => fileInputRef.current?.click()}
-          />
+          <div className="group">
+            <IconCirclePlus
+              className="absolute bottom-[12px] left-3 cursor-not-allowed p-1 hover:opacity-50"
+              size={32}
+              onClick={() => fileInputRef.current?.click()}
+            />
+            <span className="absolute bottom-[50px] left-3 hidden w-max rounded bg-gray-700 px-2 py-1 text-sm text-white group-hover:block">
+              not available now
+            </span>
+          </div>
 
           {/* Hidden input to select files from device */}
           <Input
@@ -241,7 +247,7 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
           className="ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring text-md flex w-full resize-none rounded-md border-none bg-transparent px-14 py-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           placeholder={t(
             // `Ask anything. Type "@" for assistants, "/" for prompts, "#" for files, and "!" for tools.`
-            `Ask anything. Type @  /  #  !`
+            `Ask anything. Type @  /  # !`
           )}
           onValueChange={handleInputChange}
           value={userInput}
@@ -252,6 +258,20 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
           onCompositionStart={() => setIsTyping(true)}
           onCompositionEnd={() => setIsTyping(false)}
         />
+        <div className="customCheckBoxHolder group absolute bottom-[10px] right-12">
+          <input
+            type="checkbox"
+            id="cCB1"
+            className="customCheckBoxInput"
+            checked={useOnlineSearch}
+            onChange={() => setUseOnlineSearch(!useOnlineSearch)}
+          />
+          <label htmlFor="cCB1" className="customCheckBoxWrapper">
+            <div className="customCheckBox">
+              <div className="inner">Online</div>
+            </div>
+          </label>
+        </div>
 
         <div className="absolute bottom-[14px] right-3 cursor-pointer hover:opacity-50">
           {isGenerating ? (
@@ -269,7 +289,12 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
               onClick={() => {
                 if (!userInput) return
 
-                handleSendMessage(userInput, chatMessages, false)
+                handleSendMessage(
+                  userInput,
+                  chatMessages,
+                  false,
+                  useOnlineSearch
+                )
               }}
               size={30}
             />

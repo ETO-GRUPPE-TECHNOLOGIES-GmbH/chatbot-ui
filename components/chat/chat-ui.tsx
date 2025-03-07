@@ -48,6 +48,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     messagesEndRef,
     handleScroll,
     scrollToBottom,
+    forceScrollToBottom,
     setIsAtBottom,
     isAtTop,
     isAtBottom,
@@ -193,7 +194,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
           isAtBottom={isAtBottom}
           isOverflowing={isOverflowing}
           scrollToTop={scrollToTop}
-          scrollToBottom={scrollToBottom}
+          forceScrollToBottom={forceScrollToBottom}
         />
       </div>
 

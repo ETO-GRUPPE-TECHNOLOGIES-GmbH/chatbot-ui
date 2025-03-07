@@ -191,8 +191,10 @@ export const useChatHandler = () => {
   const handleSendMessage = async (
     messageContent: string,
     chatMessages: ChatMessage[],
-    isRegeneration: boolean
+    isRegeneration: boolean,
+    useOnlineSearch: boolean = false
   ) => {
+    console.log("useOnlineSearch", useOnlineSearch)
     const startingInput = messageContent
 
     try {
@@ -335,6 +337,7 @@ export const useChatHandler = () => {
             setChatMessages,
             setToolInUse
           )
+          // hier ist der fertig generierte Text
         }
       }
 

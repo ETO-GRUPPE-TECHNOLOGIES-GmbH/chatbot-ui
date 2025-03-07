@@ -19,7 +19,7 @@ export const useScroll = () => {
   const [isAtBottom, setIsAtBottom] = useState(true)
   const [userScrolled, setUserScrolled] = useState(false)
   const [isOverflowing, setIsOverflowing] = useState(false)
-
+  const autoScrollTimeout = useRef<NodeJS.Timeout | null>(null)
   useEffect(() => {
     setUserScrolled(false)
 
@@ -32,7 +32,29 @@ export const useScroll = () => {
     if (isGenerating && !userScrolled) {
       scrollToBottom()
     }
-  }, [chatMessages])
+  }, [chatMessages, isGenerating])
+
+  const forceScrollToBottom = useCallback(() => {
+    isAutoScrolling.current = true
+
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "instant" })
+    }
+
+    if (autoScrollTimeout.current) {
+      clearTimeout(autoScrollTimeout.current)
+    }
+
+    autoScrollTimeout.current = setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "instant" })
+      }
+      isAutoScrolling.current = false
+      autoScrollTimeout.current = null
+    }, 100)
+
+    setUserScrolled(false)
+  }, [])
 
   const handleScroll: UIEventHandler<HTMLDivElement> = useCallback(e => {
     const target = e.target as HTMLDivElement
@@ -44,10 +66,17 @@ export const useScroll = () => {
     const top = target.scrollTop === 0
     setIsAtTop(top)
 
-    if (!bottom && !isAutoScrolling.current) {
+    if (!bottom) {
+      if (autoScrollTimeout.current) {
+        clearTimeout(autoScrollTimeout.current)
+        autoScrollTimeout.current = null
+      }
+
+      isAutoScrolling.current = false
       setUserScrolled(true)
     } else {
       setUserScrolled(false)
+      scrollToBottom()
     }
 
     const isOverflow = target.scrollHeight > target.clientHeight
@@ -61,16 +90,27 @@ export const useScroll = () => {
   }, [])
 
   const scrollToBottom = useCallback(() => {
+    if (userScrolled) return
+
     isAutoScrolling.current = true
 
-    setTimeout(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "instant" })
+    }
+
+    if (autoScrollTimeout.current) {
+      clearTimeout(autoScrollTimeout.current)
+    }
+
+    autoScrollTimeout.current = setTimeout(() => {
       if (messagesEndRef.current) {
         messagesEndRef.current.scrollIntoView({ behavior: "instant" })
       }
 
       isAutoScrolling.current = false
+      autoScrollTimeout.current = null
     }, 100)
-  }, [])
+  }, [userScrolled])
 
   return {
     messagesStartRef,
@@ -80,6 +120,7 @@ export const useScroll = () => {
     userScrolled,
     isOverflowing,
     handleScroll,
+    forceScrollToBottom,
     scrollToTop,
     scrollToBottom,
     setIsAtBottom
