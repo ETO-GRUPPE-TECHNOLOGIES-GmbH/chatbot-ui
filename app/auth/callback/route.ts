@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
       console.log("forwardedHost", forwardedHost)
       if (forwardedHost) {
-        return NextResponse.redirect(`http://${forwardedHost}${next}`)
+        return NextResponse.redirect(`https://${forwardedHost}${next}`)
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
@@ -35,5 +35,5 @@ export async function GET(request: Request) {
   console.log("code not found")
 
   // return the user to an error page with instructions
-  return NextResponse.redirect(`http://${forwardedHost}/auth/auth-code-error`)
+  return NextResponse.redirect(`https://${forwardedHost}/auth/auth-code-error`)
 }
