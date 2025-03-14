@@ -258,20 +258,6 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
           onCompositionStart={() => setIsTyping(true)}
           onCompositionEnd={() => setIsTyping(false)}
         />
-        <div className="customCheckBoxHolder group absolute bottom-[10px] right-12">
-          <input
-            type="checkbox"
-            id="cCB1"
-            className="customCheckBoxInput"
-            checked={useOnlineSearch}
-            onChange={() => setUseOnlineSearch(!useOnlineSearch)}
-          />
-          <label htmlFor="cCB1" className="customCheckBoxWrapper">
-            <div className="customCheckBox">
-              <div className="inner">Online</div>
-            </div>
-          </label>
-        </div>
 
         <div className="absolute bottom-[14px] right-3 cursor-pointer hover:opacity-50">
           {isGenerating ? (

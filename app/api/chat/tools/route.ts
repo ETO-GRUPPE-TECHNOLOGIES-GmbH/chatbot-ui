@@ -15,13 +15,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const profile = await getServerProfile()
+    //checkApiKey(profile.openai_api_key, "OpenAI")
 
-    checkApiKey(profile.openai_api_key, "OpenAI")
-
+    // const openai = new OpenAI({
+    //   apiKey: profile.openai_api_key || "",
+    //   organization: profile.openai_organization_id
+    // })
     const openai = new OpenAI({
-      apiKey: profile.openai_api_key || "",
-      organization: profile.openai_organization_id
+      baseURL: process.env.BASE_URL,
+      apiKey: process.env.LLM_API_KEY
     })
 
     let allTools: OpenAI.Chat.Completions.ChatCompletionTool[] = []
@@ -35,7 +37,6 @@ export async function POST(request: Request) {
         )
         const tools = convertedSchema.functions || []
         allTools = allTools.concat(tools)
-
         const routeMap = convertedSchema.routes.reduce(
           (map: Record<string, string>, route) => {
             map[route.path.replace(/{(\w+)}/g, ":$1")] = route.operationId
@@ -58,16 +59,25 @@ export async function POST(request: Request) {
         console.error("Error converting schema", error)
       }
     }
-
+    console.log("allRouteMaps", allRouteMaps)
+    console.log("doing the first request")
+    console.log("using tools", JSON.stringify(allTools))
     const firstResponse = await openai.chat.completions.create({
       model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
       messages,
-      tools: allTools.length > 0 ? allTools : undefined
+      tools: allTools.length > 0 ? allTools : undefined,
+      tool_choice: "auto"
     })
 
     const message = firstResponse.choices[0].message
+    // Remove the reasoning_content attribute if it exists
+    if ("reasoning_content" in message) {
+      delete message.reasoning_content
+      console.log("removed reasoning_content")
+    }
     messages.push(message)
     const toolCalls = message.tool_calls || []
+    console.log("toolCalls from first response", JSON.stringify(toolCalls))
 
     if (toolCalls.length === 0) {
       return new Response(message.content, {
@@ -76,19 +86,20 @@ export async function POST(request: Request) {
         }
       })
     }
-
+    let data = {}
     if (toolCalls.length > 0) {
       for (const toolCall of toolCalls) {
         const functionCall = toolCall.function
         const functionName = functionCall.name
         const argumentsString = toolCall.function.arguments.trim()
         const parsedArgs = JSON.parse(argumentsString)
+        console.log("parsedArgs", parsedArgs)
 
         // Find the schema detail that contains the function name
         const schemaDetail = schemaDetails.find(detail =>
           Object.values(detail.routeMap).includes(functionName)
         )
-
+        console.log("schemaDetail", schemaDetail)
         if (!schemaDetail) {
           throw new Error(`Function ${functionName} not found in any schema`)
         }
@@ -96,6 +107,7 @@ export async function POST(request: Request) {
         const pathTemplate = Object.keys(schemaDetail.routeMap).find(
           key => schemaDetail.routeMap[key] === functionName
         )
+        console.log("pathTemplate", pathTemplate)
 
         if (!pathTemplate) {
           throw new Error(`Path for function ${functionName} not found`)
@@ -117,7 +129,6 @@ export async function POST(request: Request) {
 
         // Determine if the request should be in the body or as a query
         const isRequestInBody = schemaDetail.requestInBody
-        let data = {}
 
         if (isRequestInBody) {
           // If the type is set to body
@@ -141,6 +152,7 @@ export async function POST(request: Request) {
           }
 
           const fullUrl = schemaDetail.url + path
+          console.log("fullUrl", fullUrl)
 
           const bodyContent = parsedArgs.requestBody || parsedArgs
 
@@ -149,9 +161,9 @@ export async function POST(request: Request) {
             headers,
             body: JSON.stringify(bodyContent) // Use the extracted requestBody or the entire parsedArgs
           }
+          console.log("requestInit", requestInit)
 
           const response = await fetch(fullUrl, requestInit)
-
           if (!response.ok) {
             data = {
               error: response.statusText
@@ -164,9 +176,10 @@ export async function POST(request: Request) {
           const queryParams = new URLSearchParams(
             parsedArgs.parameters
           ).toString()
+          console.log("queryParams", queryParams)
           const fullUrl =
             schemaDetail.url + path + (queryParams ? "?" + queryParams : "")
-
+          console.log("fullUrl", fullUrl)
           let headers = {}
 
           // Check if custom headers are set
@@ -186,18 +199,19 @@ export async function POST(request: Request) {
             }
           } else {
             data = await response.json()
+            console.log("data", data)
           }
         }
 
         messages.push({
           tool_call_id: toolCall.id,
           role: "tool",
-          name: functionName,
+          //name: functionName,
           content: JSON.stringify(data)
         })
       }
     }
-
+    console.log("doing the second response")
     const secondResponse = await openai.chat.completions.create({
       model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
       messages,
@@ -206,7 +220,11 @@ export async function POST(request: Request) {
 
     const stream = OpenAIStream(secondResponse)
 
-    return new StreamingTextResponse(stream)
+    // Create the streaming response with the data header
+    const streamingResponse = new StreamingTextResponse(stream)
+    streamingResponse.headers.set("X-Additional-Data", JSON.stringify(data))
+
+    return streamingResponse
   } catch (error: any) {
     console.error(error)
     const errorMessage = error.error?.message || "An unexpected error occurred"
