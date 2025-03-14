@@ -17,9 +17,6 @@ async function signInWithKeycloak() {
   const supabase = await createClient()
   const xhost = headers().get("x-forwarded-host")
   console.log("xhost", xhost)
-  const origin = headers().get("origin")
-  console.log("origin", origin)
-
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "keycloak",
     options: {

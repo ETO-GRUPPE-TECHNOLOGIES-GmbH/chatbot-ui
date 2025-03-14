@@ -292,7 +292,9 @@ export const processResponse = async (
 ) => {
   let fullText = ""
   let contentToAdd = ""
-
+  const additionalInfo = JSON.parse(
+    response.headers.get("X-Additional-Data") || "{}"
+  )
   if (response.body) {
     await consumeReadableStream(
       response.body,
@@ -339,7 +341,13 @@ export const processResponse = async (
       },
       controller.signal
     )
-
+    if (additionalInfo.results && additionalInfo.results.used_urls) {
+      console.log("used urls:")
+      fullText += "\n\nUsed URLs:\n"
+      additionalInfo.results.used_urls.forEach((url: string) => {
+        fullText += `\n${url},  `
+      })
+    }
     return fullText
   } else {
     throw new Error("Response body is null")

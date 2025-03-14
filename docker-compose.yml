@@ -1,5 +1,6 @@
 services:
   chatbot-ui:
+    container_name: chatbot-ui
     build: .
     network_mode: host
     ports:
