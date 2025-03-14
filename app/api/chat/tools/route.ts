@@ -114,7 +114,17 @@ export async function POST(request: Request) {
         }
 
         const path = pathTemplate.replace(/:(\w+)/g, (_, paramName) => {
-          const value = parsedArgs.parameters[paramName]
+          let value
+          if (parsedArgs.parameters) {
+            value = parsedArgs.parameters[paramName]
+            console.log("used parameters")
+            console.log(value)
+          } else {
+            value = parsedArgs[paramName]
+            console.log("used parsedArgs")
+            console.log(value)
+          }
+
           if (!value) {
             throw new Error(
               `Parameter ${paramName} not found for function ${functionName}`
@@ -174,7 +184,7 @@ export async function POST(request: Request) {
         } else {
           // If the type is set to query
           const queryParams = new URLSearchParams(
-            parsedArgs.parameters
+            parsedArgs.parameters ? parsedArgs.parameters : parsedArgs
           ).toString()
           console.log("queryParams", queryParams)
           const fullUrl =

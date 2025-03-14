@@ -126,14 +126,21 @@ export const openapiToFunctions = async (
       if (params.length > 0) {
         const paramProperties = params.reduce((acc: any, param: any) => {
           if (param.schema) {
-            acc[param.name] = param.schema
+            acc[param.name] = {
+              ...param.schema,
+              description: param.description || "" // Include the description
+            }
           }
           return acc
         }, {})
 
         schema.properties.parameters = {
           type: "object",
-          properties: paramProperties
+          properties: paramProperties,
+          required: params
+            .filter((param: any) => param.required)
+            .map((param: any) => param.name),
+          additionalProperties: false
         }
       }
 
