@@ -111,6 +111,21 @@ BEGIN
         NEW.id -- if of the created workspace
     );
 
+    -- add assistant to workspace
+    INSERT INTO assistant_workspaces (user_id, assistant_id, workspace_id)
+    VALUES (
+        NEW.user_id,
+        '033a96f5-deb8-45f0-81d8-b6ed76a94cee', -- Assistant-ID
+        NEW.id -- if of the created workspace
+    );
+
+    -- INSERT INTO tool_workspaces (user_id, tool_id, workspace_id)
+    -- VALUES (
+    --     NEW.user_id,
+    --     '82f0d203-70a2-4c13-9643-6430c127d576', -- Tool-ID
+    --     NEW.id -- if of the created workspace
+    -- );
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

@@ -30,6 +30,14 @@ CREATE POLICY "Allow full access to own assistant_tools"
     USING (user_id = auth.uid())
     WITH CHECK (user_id = auth.uid());
 
+
+CREATE POLICY "Allow everyone to view assistant_tools"
+    ON assistant_tools
+    FOR SELECT
+    TO PUBLIC
+    USING (true);
+
+
 -- TRIGGERS --
 
 CREATE TRIGGER update_assistant_tools_updated_at
