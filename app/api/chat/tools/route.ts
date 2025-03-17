@@ -232,7 +232,14 @@ export async function POST(request: Request) {
 
     // Create the streaming response with the data header
     const streamingResponse = new StreamingTextResponse(stream)
-    streamingResponse.headers.set("X-Additional-Data", JSON.stringify(data))
+    if (data) {
+      streamingResponse.headers.set(
+        "X-Additional-Data",
+        btoa(JSON.stringify(data))
+      )
+    } else {
+      streamingResponse.headers.set("X-Additional-Data", "") // Leeren String setzen oder einen Standardwert
+    }
 
     return streamingResponse
   } catch (error: any) {

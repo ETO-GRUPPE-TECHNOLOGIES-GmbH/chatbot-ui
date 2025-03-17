@@ -292,9 +292,16 @@ export const processResponse = async (
 ) => {
   let fullText = ""
   let contentToAdd = ""
-  const additionalInfo = JSON.parse(
-    response.headers.get("X-Additional-Data") || "{}"
-  )
+  const headerValue = response.headers.get("X-Additional-Data") || ""
+  let additionalInfo = {}
+  if (headerValue) {
+    try {
+      additionalInfo = JSON.parse(atob(headerValue))
+    } catch (e) {
+      console.error("error decoding additional data:", e)
+      additionalInfo = {} // Fallback to empty object
+    }
+  }
   if (response.body) {
     await consumeReadableStream(
       response.body,
@@ -345,6 +352,7 @@ export const processResponse = async (
       console.log("used urls:")
       fullText += "\n\nUsed URLs:\n"
       additionalInfo.results.used_urls.forEach((url: string) => {
+        console.log(url)
         fullText += `\n${url},  `
       })
     }
