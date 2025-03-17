@@ -1,3 +1,4 @@
+import { removeUsedURLs } from "@/components/utility/modify_messages"
 import { Database } from "@/supabase/types"
 import { ChatSettings } from "@/types"
 import { createClient } from "@supabase/supabase-js"
@@ -36,10 +37,10 @@ export async function POST(request: Request) {
       apiKey: customModel.api_key || "",
       baseURL: customModel.base_url
     })
-
+    const processedMessages = removeUsedURLs(messages)
     const response = await custom.chat.completions.create({
       model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
-      messages: messages as ChatCompletionCreateParamsBase["messages"],
+      messages: processedMessages as ChatCompletionCreateParamsBase["messages"],
       temperature: chatSettings.temperature,
       stream: true
     })

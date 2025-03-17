@@ -1,3 +1,4 @@
+import { removeUsedURLs } from "@/components/utility/modify_messages"
 import { openapiToFunctions } from "@/lib/openapi-conversion"
 import { checkApiKey, getServerProfile } from "@/lib/server/server-chat-helpers"
 import { Tables } from "@/supabase/types"
@@ -62,9 +63,10 @@ export async function POST(request: Request) {
     console.log("allRouteMaps", allRouteMaps)
     console.log("doing the first request")
     console.log("using tools", JSON.stringify(allTools))
+    const processedMessages = removeUsedURLs(messages)
     const firstResponse = await openai.chat.completions.create({
       model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
-      messages,
+      messages: processedMessages,
       tools: allTools.length > 0 ? allTools : undefined,
       tool_choice: "auto"
     })
@@ -222,9 +224,10 @@ export async function POST(request: Request) {
       }
     }
     console.log("doing the second response")
+    const processedMessages_2 = removeUsedURLs(messages)
     const secondResponse = await openai.chat.completions.create({
       model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
-      messages,
+      messages: processedMessages_2,
       stream: true
     })
 
@@ -235,7 +238,7 @@ export async function POST(request: Request) {
     if (data) {
       streamingResponse.headers.set(
         "X-Additional-Data",
-        btoa(JSON.stringify(data))
+        encodeURIComponent(JSON.stringify(data))
       )
     } else {
       streamingResponse.headers.set("X-Additional-Data", "") // Leeren String setzen oder einen Standardwert

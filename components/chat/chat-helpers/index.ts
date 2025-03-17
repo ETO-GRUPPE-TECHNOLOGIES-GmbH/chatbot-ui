@@ -292,16 +292,6 @@ export const processResponse = async (
 ) => {
   let fullText = ""
   let contentToAdd = ""
-  const headerValue = response.headers.get("X-Additional-Data") || ""
-  let additionalInfo = {}
-  if (headerValue) {
-    try {
-      additionalInfo = JSON.parse(atob(headerValue))
-    } catch (e) {
-      console.error("error decoding additional data:", e)
-      additionalInfo = {} // Fallback to empty object
-    }
-  }
   if (response.body) {
     await consumeReadableStream(
       response.body,
@@ -348,13 +338,29 @@ export const processResponse = async (
       },
       controller.signal
     )
-    if (additionalInfo.results && additionalInfo.results.used_urls) {
-      console.log("used urls:")
-      fullText += "\n\nUsed URLs:\n"
-      additionalInfo.results.used_urls.forEach((url: string) => {
-        console.log(url)
-        fullText += `\n${url},  `
-      })
+    const headerValue = response.headers.get("X-Additional-Data") || ""
+    interface AdditionalInfo {
+      results?: {
+        used_urls?: string[]
+      }
+    }
+
+    let additionalInfo: AdditionalInfo = {}
+    if (headerValue) {
+      try {
+        additionalInfo = JSON.parse(decodeURIComponent(headerValue))
+        if (additionalInfo.results && additionalInfo.results.used_urls) {
+          console.log("used urls:")
+          fullText += "\n\nUsed URLs:\n"
+          additionalInfo.results.used_urls.forEach((url: string) => {
+            console.log(url)
+            fullText += `\n${url},  `
+          })
+        }
+      } catch (e) {
+        console.error("error decoding additional data:", e)
+        additionalInfo = {} // Fallback to empty object
+      }
     }
     return fullText
   } else {
