@@ -93,6 +93,9 @@ WHERE is_home;
 CREATE OR REPLACE FUNCTION set_default_model_and_create_model_workspace()
 RETURNS TRIGGER AS $$
 BEGIN
+    IF NEW.user_id = 'e9fc7e46-a8a5-4fd4-8ba7-af485013e6fa' THEN
+        RETURN NEW;
+    END IF;
     -- set default model
     NEW.default_model := 'stelterlab/Mistral-Small-24B-Instruct-2501-AWQ';
 
@@ -104,12 +107,12 @@ BEGIN
         NEW.id -- if of the created workspace
     );
 
-    INSERT INTO model_workspaces (user_id, model_id, workspace_id)
-    VALUES (
-        NEW.user_id,
-        '0c713fc2-1ad4-4e92-b6c6-e73472f9e387', -- Model-ID
-        NEW.id -- if of the created workspace
-    );
+    -- INSERT INTO model_workspaces (user_id, model_id, workspace_id)
+    -- VALUES (
+    --     NEW.user_id,
+    --     '0c713fc2-1ad4-4e92-b6c6-e73472f9e387', -- Model-ID
+    --     NEW.id -- if of the created workspace
+    -- );
 
     -- add assistant to workspace
     INSERT INTO assistant_workspaces (user_id, assistant_id, workspace_id)

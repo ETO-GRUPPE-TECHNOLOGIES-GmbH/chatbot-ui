@@ -26,4 +26,9 @@ else
   for file in /migrations/*.sql; do
     PGPASSWORD=$POSTGRES_PASSWORD psql -h db -U supabase_admin -d $POSTGRES_DB -f "$file"
   done
+  # running the seed
+  echo "Running seeds..."
+  for file in /migrations/seeds/*.sql; do
+    PGPASSWORD=$POSTGRES_PASSWORD psql -h db -U supabase_admin -d $POSTGRES_DB -f "$file"
+  done
 fi

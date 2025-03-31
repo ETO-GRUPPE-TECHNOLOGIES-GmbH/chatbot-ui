@@ -16,7 +16,7 @@ export const Brand: FC = () => {
         <ChatbotUISVG scale={1.8} />
       </div>
 
-      <div className="text-4xl font-bold tracking-wide">ETO Chatbot</div>
+      <div className="text-4xl font-bold tracking-wide">ETO Knows</div>
     </Link>
   )
 }
