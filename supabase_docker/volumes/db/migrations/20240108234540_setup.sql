@@ -2,7 +2,7 @@
 create extension http with schema extensions;
 
 -- Enable vector extension
-create extension vector with schema extensions;
+create extension vector with schema public;
 
 -- Function to update modified column
 CREATE OR REPLACE FUNCTION update_updated_at_column()

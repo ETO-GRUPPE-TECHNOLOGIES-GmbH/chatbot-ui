@@ -220,13 +220,10 @@ export const ChatInput: FC<ChatInputProps> = ({}) => {
         <>
           <div className="group">
             <IconCirclePlus
-              className="absolute bottom-[12px] left-3 cursor-not-allowed p-1 hover:opacity-50"
+              className="absolute bottom-[12px] left-3 p-1 hover:opacity-50"
               size={32}
               onClick={() => fileInputRef.current?.click()}
             />
-            <span className="absolute bottom-[50px] left-3 hidden w-max rounded bg-gray-700 px-2 py-1 text-sm text-white group-hover:block">
-              not available now
-            </span>
           </div>
 
           {/* Hidden input to select files from device */}
